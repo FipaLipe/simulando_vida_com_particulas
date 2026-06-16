@@ -15,26 +15,36 @@ repulsao_borda = 1
 atrito = 0.5
 dt = 1
 
+# tipos = [
+#     {
+#         'cor': (210, 0, 0),
+#         'tamanho': 1,
+#         'interacoes': [
+#             0.4, 0.1, 0.2
+#         ]
+#     },
+#     {
+#         'cor': (0, 0, 210),
+#         'tamanho': 1,
+#         'interacoes': [
+#             -0.5, 0.2, 0.5
+#         ]
+#     },
+#     {
+#         'cor': (210, 210, 0),
+#         'tamanho': 1,
+#         'interacoes': [
+#             0.2, 0.3, 0.5
+#         ]
+#     }
+# ]
+
 tipos = [
     {
         'cor': (210, 0, 0),
-        'tamanho': 1,
+        'tamanho': 2,
         'interacoes': [
-            0.4, 0.1, 0.2
-        ]
-    },
-    {
-        'cor': (0, 0, 210),
-        'tamanho': 1,
-        'interacoes': [
-            -0.5, 0.2, 0.5
-        ]
-    },
-    {
-        'cor': (210, 210, 0),
-        'tamanho': 1,
-        'interacoes': [
-            0.2, 0.3, 0.5
+            0.4,
         ]
     }
 ]
