@@ -1,12 +1,19 @@
-# Importando bibliotecas
 import pygame
-import random
-import math
 import numpy as np
-from matplotlib import pyplot as plt
+
+# =============================================
+# CLASSES
+# =============================================
+
+class Species:
+    def __init__(self, id, color, size=1):
+        self.id = id
+        self.color = color
+        self.size = size
+
 
 class Game:
-    def __init__(self, interactions, force_function, friction, width = 700, height = 700, max_fps = 60):
+    def __init__(self, interactions, force_function, friction, species, particle_number = 300, width = 700, height = 700, max_fps = 60, dt = 1):
         self.running = True
         self.display = None
         self.clock = None
@@ -14,38 +21,75 @@ class Game:
         self.height = height
         self.size = (self.width, self.height)
         self.max_fps = max_fps
-        self.particles = []
+        self.dt = dt
 
         self.interactions = interactions
         self.force_function = force_function
         self.friction = friction
-    
+        self.species = species
+        self.particle_number = particle_number
+
+        ### Informações das partículas
+        self.particles = self.initiate_particles()
+        
+
+        self.interactions_matrix = self.interactions[
+            self.particles["species"][:, None],
+            self.particles["species"][None, :]
+        ]
+
+        self.interactions_strength = self.interactions_matrix[:, :, 0]
+        self.interactions_radius = self.interactions_matrix[:, :, 1]
+
+    def initiate_particles(self):
+        particles = {}
+        particles["positions"] = np.random.rand(self.particle_number, 2) * [self.width, self.height]
+        particles["velocities"] = np.zeros((self.particle_number, 2))
+        particles["species"] = np.random.randint(0, len(self.species), size=self.particle_number)
+
+        return particles
+
     def on_init(self):
         pygame.init()
         self.display = pygame.display.set_mode(self.size)
         self.clock = pygame.time.Clock()
         return True
 
-    def on_add_particle(self, particle):
-        self.particles.append(particle)
-    
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self.running = False
-    
+
     def on_loop(self):
-        # Atualiza as partículas
-        for particle in self.particles:            
-            particle.on_loop(self.particles, self.force_function, self.interactions, self.friction)
-        
-        for particle in self.particles:    
-            particle.update_position()
+        #Atualiza as partículas
+        diff = self.particles["positions"][None, :, :] - self.particles["positions"][:, None, :]
+        dist = dist = np.linalg.norm(diff, axis=2) + 1e-5 # Soma um número muito pequeno pra não dividir por 0 depois
+
+        np.fill_diagonal(dist, np.inf) # Evita forças com a própria partícula
+
+        direction = diff / dist[:, :, None]
+
+        dist /= self.interactions_radius # Normaliza a distância com base na visão
+
+        force_strength = self.force_function(dist, self.interactions_strength)
+        force_strength[dist > 1] = 0
+
+        force = force_strength[:, :, None] * direction
+
+        total_force = np.sum(force, axis=1)
+
+        self.particles["velocities"] = (self.particles["velocities"] + total_force * self.dt) * (1 - self.friction)
+
+        self.particles["positions"] += self.particles["velocities"] * self.dt
+        # self.particles["positions"] %= [self.width, self.height]
+
 
     def on_render(self):
         self.display.fill((20, 20, 20))
 
-        for particle in self.particles:
-            particle.on_render(self.display)
+        for i in range(len(self.particles["positions"])):
+            pos = self.particles["positions"][i]
+            species = self.species[self.particles["species"][i]]
+            pygame.draw.circle(self.display, species.color, pos, species.size)
 
         pygame.display.flip()
 
@@ -67,117 +111,69 @@ class Game:
 
         self.on_cleanup()
 
-class Species:
-    def __init__(self, id, color, size = 1):
-        self.id = id
-        self.color = color
-        self.size = size
 
-class Particle:
-    def __init__(self, species, position = None, velocity = None):
-        self.species = species
-        self.position = position
-        if self.position == None:
-            self.position = [0, 0]
-
-        self.new_position = position.copy()
-        self.velocity = velocity
-        if self.velocity == None:
-            self.velocity = [0, 0]
-    
-    def on_render(self, surface): 
-        pygame.draw.circle(surface, self.species.color, self.position, self.species.size)
-    
-    def on_loop(self, particles, force_function, interactions, friction):
-        force_x = 0
-        force_y = 0
-
-        for other_particle in particles:
-            if other_particle.position == self.position:
-                continue
-        
-            attraction, vision = interactions[self.species.id][other_particle.species.id]
-
-            diff_x = other_particle.position[0] - self.position[0]
-            diff_y = other_particle.position[1] - self.position[1]
-
-            if abs(diff_x) >= vision or abs(diff_y) >= vision:
-                continue
-
-            distance = math.sqrt(diff_x ** 2 + diff_y ** 2)
-
-            if distance > vision or distance <= 0:
-                continue
-
-            normal_distance = distance / vision
-
-            force = force_function(normal_distance, attraction)
-
-            force_x += force * (diff_x / distance)
-            force_y += force * (diff_y / distance)
-
-            # print(distance, diff_x, diff_y)
-        
-        self.velocity[0] += force_x
-        self.velocity[1] += force_y
-
-        self.new_position[0] += self.velocity[0]
-        self.new_position[1] += self.velocity[1]
-
-        self.velocity[0] *= 1 - friction
-        if abs(self.velocity[0]) < 0.1:
-            self.velocity[0] = 0
-            
-        self.velocity[1] *= 1 - friction
-        if abs(self.velocity[1]) < 0.1:
-            self.velocity[1] = 0
-
-    def update_position(self):
-        self.position = self.new_position
-
-def instantiate_particles(number_of_particles, species, game):
-    for i in range(number_of_particles):
-        particle_species = random.choice(species)
-        particle_x = random.randint(0, game.width)
-        particle_y = random.randint(0, game.height)
-        
-        new_particle = Particle(particle_species, [particle_x, particle_y])
-        game.on_add_particle(new_particle)
+# =============================================
+# FORÇA
+# =============================================
 
 def force_function(dist, attraction):
+
     repulsion_intensity = -0.8
     repulsion_radius = 0.3
 
-    if 0 <= dist < repulsion_radius:
-        return dist * (-repulsion_intensity / repulsion_radius) + repulsion_intensity
+    force = np.zeros_like(dist)
+
+    mask1 = (dist >= 0) & (dist < repulsion_radius)
+    force[mask1] = (
+        dist[mask1] * (-repulsion_intensity / repulsion_radius) + repulsion_intensity
+    )
 
     mid = repulsion_radius + ((1 - repulsion_radius) / 2)
 
-    if repulsion_radius <= dist < mid:
-        return (dist - repulsion_radius) * attraction / (mid - repulsion_radius)
+    mask2 = (dist >= repulsion_radius) & (dist < mid)
+    force[mask2] = (
+        (dist[mask2] - repulsion_radius) * attraction[mask2] / (mid - repulsion_radius)
+    )
 
-    if mid <= dist <= 1:
-        return -(1 - dist) * (-attraction / (1 - mid))
+    mask3 = (dist >= mid) & (dist <= 1)
+    force[mask3] = (
+        -(1 - dist[mask3]) * (-attraction[mask3] / (1 - mid))
+    )
 
-    return 0
+    return force
 
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-red_species = Species(0, (255,0,0), 4)
+# =============================================
+# SETUP
+# =============================================
+friction = 0.1
+
+red_species = Species(0, (255, 0, 0), 4)
 blue_species = Species(1, (0, 0, 255), 4)
 yellow_species = Species(2, (255, 255, 0), 4)
-species = [red_species, blue_species, yellow_species]
+green_species = Species(3, (0, 255, 0), 4)
+purple_species = Species(4, (255, 0, 255), 4)
+cyan_species = Species(5, (0, 255, 255), 4)
+white_species = Species(6, (255, 255, 255), 4)
 
-interactions = [
-    [(0.3, 100), (-0.2, 100), (0.2, 100)],   # Vermelho com Vermelho | Vermelho com Azul | Vermelho com Amarelo
-    [(0.3, 100), (0.3, 100), (-0.1, 100)],   # Azul com Vermelho     | Azul com Azul     | Azul com Amarelo
-    [(-0.2, 100), (0.3, 100), (0.3, 100)],   # Amarelo com Vermelho  | Amarelo com Azul  | Amarelo com Amarelo
+species = [
+    red_species, blue_species, yellow_species,
+    green_species, purple_species, cyan_species, white_species
 ]
 
-friction = 0.3
+interactions = np.array([
 
-game = Game(interactions, force_function, friction)
+    # R         B           Y          G           P           C          W
+    [(0.3,100), (-0.2,100), (0.2,100), (-0.1,100), (0.4,100), (0.0,100), (-0.3,100)],  # RED
+    [(0.3,100), (0.3,100), (-0.1,100), (0.2,100), (-0.4,100), (0.1,100), (0.0,100)],   # BLUE
+    [(-0.2,100), (0.3,100), (0.3,100), (-0.3,100), (0.0,100), (0.2,100), (0.1,100)],   # YELLOW
+    [(0.1,100), (-0.2,100), (0.3,100), (0.3,100), (0.2,100), (-0.3,100), (0.0,100)],   # GREEN
+    [(0.4,100), (0.1,100), (-0.2,100), (0.3,100), (0.3,100), (-0.1,100), (0.2,100)],   # PURPLE
+    [(0.0,100), (-0.3,100), (0.2,100), (0.1,100), (0.3,100), (0.3,100), (-0.2,100)],   # CYAN
+    [(-0.3,100), (0.0,100), (0.1,100), (-0.2,100), (0.2,100), (0.3,100), (0.3,100)]    # WHITE
 
-instantiate_particles(300, species, game)
+])
+
+game = Game(interactions, force_function, friction, species, particle_number=600, width=800, height=800)
 
 game.on_execute()
