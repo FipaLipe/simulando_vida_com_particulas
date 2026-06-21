@@ -70,7 +70,7 @@ Este repositório possui um <i>Jupyter Notebook</i> didático que guia o leitor 
 
 # Agradecimentos
 
-Gostaria de agradacer ao estagiário de computação João Vitor Pires de Souza, por estar sempre disponível quando necessário, e ao meu colega de classe Vinícius Marianno de Marque Cutolo por proporcionar bons debates e questionamentos sobre ao projeto.
+Gostaria de agradacer ao estagiário de computação João Vitor Pires de Souza, por estar sempre disponível quando necessário, e ao meu colega de classe Vinícius Marianno de Marque Cutolo por proporcionar bons debates e questionamentos sobre o projeto.
 
 ---
 
@@ -92,7 +92,7 @@ Gostaria de agradacer ao estagiário de computação João Vitor Pires de Souza,
     </td>
     <td align="center">
       <a href="https://github.com/jamesmalmeida">
-        <img src="https://servicosweb.cnpq.br/wspessoa/servletrecuperafoto?tipo=1&id=K4710448J1" width="100px;" alt="Foto do Daniel no Github" style="border-radius:100%;"/><br>
+        <img src="https://ilum.cnpem.br/wp-content/uploads/2022/05/CF_3214-scaled-2053x2053.jpg" width="100px;" alt="Foto do James no site da ILUM" style="border-radius:100%;"/><br>
         <b>Prof. Dr. James Moraes de Almeida</b>
       </a>
     </td>
