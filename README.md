@@ -2,6 +2,11 @@
 
 <img src="./imagens/assets/Cabecalho.png"/>
 
+<img src="./imagens/assets/banner.gif" width="100%"/>
+
+<br/>
+<br/>
+
 <h1 align="center">
 Simulando Vida com Partículas
 </h1>
