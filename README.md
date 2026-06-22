@@ -2,11 +2,6 @@
 
 <img src="./imagens/assets/Cabecalho.png"/>
 
-<img src="./imagens/assets/banner.gif" width="100%"/>
-
-<br/>
-<br/>
-
 <h1 align="center">
 Simulando Vida com Partículas
 </h1>
@@ -21,6 +16,8 @@ Simulando Vida com Partículas
   <img src="https://img.shields.io/badge/domain-complex%20systems-green">
   <img src="https://img.shields.io/badge/focus-emergence-blueviolet">
 </p>
+
+<img src="./imagens/assets/banner.gif" width="100%"/>
 
 ---
 
@@ -76,7 +73,7 @@ Este repositório possui um <i>Jupyter Notebook</i> didático que guia o leitor 
 
 # Agradecimentos
 
-Gostaria de agradacer ao estagiário de computação João Vitor Pires de Souza, por estar sempre disponível quando necessário, e ao meu colega de classe Vinícius Marianno de Marque Cutolo por proporcionar bons debates e questionamentos sobre o projeto.
+Gostaria de agradacer ao estagiário de computação João Vitor Pires de Souza, por estar sempre disponível quando necessário, e ao meu colega de classe Vinícius Marianno de Marque Cutolo por proporcionar bons debates e questionamentos sobre o projeto. Também agradeco ao Giulio Roux por proporcionar um repositório base que serviu de inspiração para a organização e documentação dos arquivos.
 
 ---
 
