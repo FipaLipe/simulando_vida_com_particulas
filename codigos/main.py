@@ -139,7 +139,7 @@ class Game:
             if event.ui_element == self.n_species_increment:
                 self.n_species = min(self.n_species + 1, 9)
             if event.ui_element == self.n_species_decrement:
-                self.n_species = max(self.n_species - 1, 0)
+                self.n_species = max(self.n_species - 1, 1)
         
         if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
             if event.ui_element == self.friction_slider:
