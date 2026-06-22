@@ -2,6 +2,9 @@ import pygame
 import pygame_gui
 import numpy as np
 import os
+import random
+
+random.seed(42)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT_PATH = os.path.join(BASE_DIR, "fontes", "Monocraft.otf")
@@ -42,6 +45,7 @@ class Game:
         self.force_function = force_function
         self.friction = friction
         self.species = species
+        self.n_species = len(species)
         self.particle_number = particle_number
 
         ### Informações das partículas
@@ -64,6 +68,28 @@ class Game:
 
         
         return particles
+    
+    def generate_species(self):
+        species = []
+
+        for i in range(self.n_species):
+            species.append(Species(i, (random.randint(40, 255), random.randint(40, 255), random.randint(40, 255)), 4))
+
+        return species
+    
+    def generate_interactions(self):
+        interactions = np.random.rand(self.n_species, self.n_species, 2)
+
+        interactions[:,:,0] = (interactions[:,:,0] - 0.5) * 0.6
+        interactions[:,:,1] = (interactions[:,:,1] * 100) + 60
+
+        return interactions
+    
+    def restart_simulation(self):
+        self.species = self.generate_species()
+        self.interactions = self.generate_interactions()
+        self.particles = self.initiate_particles()
+
 
     def on_init(self):
         pygame.init()
@@ -80,13 +106,21 @@ class Game:
         
         self.manager.add_font_paths("monocraft", FONT_PATH)
 
-        restart_rect = pygame.Rect(0, 0, 80, 50)
-        restart_rect.bottomright = (self.width-10, self.height -10)
-        self.restart = pygame_gui.elements.UIButton(restart_rect, "Restart", self.manager)
+        restart_rect = pygame.Rect(0, 0, 200, 50)
+        restart_rect.topright = (self.width-10, 10)
+        self.restart = pygame_gui.elements.UIButton(restart_rect, "Restart positions", self.manager)
 
         friction_slider_rect = pygame.Rect(0, 0, 200, 20)
         friction_slider_rect.bottomleft = (310, self.height -10)
         self.friction_slider = pygame_gui.elements.UIHorizontalSlider(friction_slider_rect, 0.1, (0, 1), self.manager)
+
+        n_species_increment_rect = pygame.Rect(0, 0, 20, 20)
+        n_species_increment_rect.bottomleft = (474, self.height - 56)
+        self.n_species_increment = pygame_gui.elements.UIButton(n_species_increment_rect, "+", self.manager)
+
+        n_species_decrement_rect = pygame.Rect(0, 0, 20, 20)
+        n_species_decrement_rect.bottomleft = (432, self.height - 56)
+        self.n_species_decrement = pygame_gui.elements.UIButton(n_species_decrement_rect, "-", self.manager)
 
         return True
 
@@ -96,11 +130,16 @@ class Game:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
-                self.particles = self.initiate_particles()
+                self.restart_simulation()
 
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == self.restart:
                 self.particles = self.initiate_particles()
+            
+            if event.ui_element == self.n_species_increment:
+                self.n_species = min(self.n_species + 1, 9)
+            if event.ui_element == self.n_species_decrement:
+                self.n_species = max(self.n_species - 1, 0)
         
         if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
             if event.ui_element == self.friction_slider:
@@ -163,6 +202,19 @@ class Game:
         friction_text_rect = friction_text.get_rect()
         friction_text_rect.bottomleft = (314, self.height - 34)
         self.display.blit(friction_text, friction_text_rect)
+
+        n_species_text = self.font_sm.render(f"# of Species:   {self.n_species}", False, (240, 240, 240), (20, 20, 20))
+        n_species_text_rect = n_species_text.get_rect()
+        n_species_text_rect.bottomleft = (314, self.height - 58)
+        self.display.blit(n_species_text, n_species_text_rect)
+
+        interaction_rect = pygame.Rect(0, 0, 180 // len(self.species), 180 // len(self.species))
+
+        for i in range(len(self.species)):
+            for j in range(len(self.species)):
+                interaction_rect.topleft = (self.width - 190 + (j * 180 // len(self.species)), self.height - 190 + (i * 180 // len(self.species)))
+                pygame.draw.rect(self.display, (-255 * min(0, self.interactions[i][j][0]), 255 * max(0, self.interactions[i][j][0]) , 0), interaction_rect, border_radius=4)
+                pygame.draw.rect(self.display, (60, 60, 60), interaction_rect, 2, border_radius=4)
 
         self.manager.draw_ui(self.display)
 
@@ -252,6 +304,6 @@ interactions = np.array([
 
 ])
 
-game = Game(interactions, force_function, friction, species, particle_number=600, width=800, height=800)
+game = Game(interactions, force_function, friction, species, particle_number=600, width=900, height=900)
 
 game.on_execute()
