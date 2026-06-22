@@ -109,7 +109,7 @@ Gostaria de agradacer ao estagiário de computação João Vitor Pires de Souza,
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/Fipa-Lipe">
+      <a href="https://github.com/FipaLipe">
         <img src="https://avatars.githubusercontent.com/u/90717547?v=4" width="100px;" alt="Foto do Filipi no Github" style="border-radius:100%;"/><br>
         <b>Filipi Martins</b>
       </a>
