@@ -54,6 +54,7 @@ Este repositório possui um <i>Jupyter Notebook</i> didático que guia o leitor 
     <ul>
       <li> 📂 <b>playground</b>: área de testes para protótipos e funções suporte </li>
       <li> 📄 <b>main.py</b>: script com a versão final do projeto </li>
+      <li> 📄 <b>theme.json</b>: configuração visual da interface </li>
       <li> 📓 <b>simulando_vida_com_particulas.ipynb</b>: Jupyter Notebook que explica a simulação de forma didática <b>(📌começe aqui!)</b></li>
     </ul>
   <li> 📂 <b>imagens</b>: contém as imagens utilizadas ao longo do material</li>
