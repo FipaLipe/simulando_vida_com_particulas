@@ -23,7 +23,7 @@ Simulando Vida com Partículas
 
 # Como executar?
 
-Python 10+ é necessário para rodar o código. o procedimento recomendado é criar um novo ambiente virtual e instalar os módulos necessários com
+Python 3.10+ é necessário para rodar o código. o procedimento recomendado é criar um novo ambiente virtual e instalar os módulos necessários com
 
 ```sh
 pip install -r requirements.txt
